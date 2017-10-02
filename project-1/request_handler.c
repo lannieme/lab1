@@ -155,8 +155,24 @@ void handle_head(Request *request, char *response, char *ROOT){
 
   if (access(request->http_uri, F_OK ) == -1){
     // response for non-existing file
-    fprintf(stderr, "handle line 148\n"); 
+    strcat(header, "HTTP/1.1 ");
     strcat(header, STATUS_404);
+
+    // Date & Time
+    char date_time[TIME_LENGTH];
+    get_current_time(date_time);
+    strcat(header, "Date: ");
+    strcat(header, date_time);
+    strcat(header, "\r\n");
+    // Server
+    strcat(header, "Server: Liso/1.0\r\n");
+    strcat(header, "Content-length: 8192");
+    // strcat(header, HEADER_SIZE);
+    strcat(header, "\r\n");
+
+    strcat(header, "Connection: Closed\r\n");
+    // strcat(header, "Content-type: text/html\r\n");
+
     printf("The file does not exists \n"); 
   } else {
     // 200 OK
