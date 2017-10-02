@@ -177,7 +177,8 @@ int main(int argc, char* argv[])
                     FD_CLR(i, &master); // remove from master set
                 } else { //data ready to proceed
                     handle_request(buf,nbytes,response);
-                    int status = send(i, buf, nbytes, 0);
+                    fprintf(stderr, "response here : %s\n",response );
+                    int status = send(i, buf, strlen(buf), 0);
                     if (status  == -1) {
                       perror("send");
                       fprintf(stderr, "ERROR：not able to sent data to client");

@@ -189,6 +189,7 @@ void handle_head(Request *request, char *response){
     // Add "Close"
     strcat(header, "Connection: keep-alive\r\n");
   }
+  strcat(response, header);
 }
 
 void handle_post(Request *request, char *response){
