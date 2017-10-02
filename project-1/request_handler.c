@@ -14,12 +14,12 @@
 
 //set status code
 char *STATUS_200 = "200_OK\n";
-char *STATUS_204 = "204_No Content\n";
-char *STATUS_404 = "404_Not Found\n";
-char *STATUS_411 = "411_Length Required\n";
-char *STATUS_500 = "500_Internal Server Error\n";
-char *STATUS_501 = "501_Not Implemented\n";
-char *STATUS_505 = "505_HTTP Version not supported\n";
+char *STATUS_204 = "204_NO_CONTENT\n";
+char *STATUS_404 = "404_NOT_FOUND\n";
+char *STATUS_411 = "411_LENGTH_REQUIRED\n";
+char *STATUS_500 = "500_INTERNAL_SERVER_ERROR\n";
+char *STATUS_501 = "501_NOT_IMPLEMENTED\n";
+char *STATUS_505 = "505_HTTP_VERSION_NOT_SUPPORTED\n";
 
 static const char DATE_FORMAT_STR[]  = "%a, %d %b %Y %H:%M:%S GMT";
 
