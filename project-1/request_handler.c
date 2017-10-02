@@ -79,12 +79,14 @@ void get_last_modified(char *filename, char *file_modified){
 }
 
 //handle large file
-void response_body(Response *response, char *file_content, size_t size){
+char response_body(char *file_content, size_t size){
   int *max_content_size = 1000;
   if (size > max_content_size){ 
     size = max_content_size;
   }
-  memcpy(response->file_content, file_content, size);
+  char file_content_output[size];
+  memcpy(file_content_output, file_content, size);
+  return file_content_output;
 }
 
 void handle_get(Request *request, char *response, char *ROOT){
@@ -124,7 +126,7 @@ void handle_get(Request *request, char *response, char *ROOT){
     // Content-Length
     size_t file_size = get_file_length(filename);
     strcat(header, "Content-length: ");
-    strcat(header, get_file_length(file_size));
+    strcat(header, file_size);
     strcat(header,"\r\n");
     // Content-Type
     char file_type[FILE_TYPE_LENGTH];
@@ -134,16 +136,16 @@ void handle_get(Request *request, char *response, char *ROOT){
     strcat(header,"\r\n");
     // Connection 
     strcat(header, "Connection: keep-alive\r\n");
+
+    char file_content[BODY_SIZE];
+    get_file_content(fp, file_content);
+
+    fclose(fp);
+
+    strcat(response, header);
+    strcat(response, "\r\n");
+    strcat(response, response_body(file_content, file_size));
   }
-
-  char file_content[BODY_SIZE];
-  get_file_content(fp, file_content);
-
-  fclose(fp);
-
-  strcat(response, header);
-  strcat(response, "\r\n");
-  response_body(response, file_content, file_size);
 }
 
 void handle_head(Request *request, char *response, char *ROOT){   
