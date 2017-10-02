@@ -13,14 +13,14 @@
 #define FILE_TYPE_LENGTH 50
 
 //set status code
-char *STATUS_200 = "200_OK\r\n";
-char *STATUS_204 = "204_NO_CONTENT\r\n";
-char *STATUS_401 = "401_UNAUTHORIZED\r\n";
-char *STATUS_404 = "404_NOT_FOUND\r\n";
-char *STATUS_411 = "411_LENGTH_REQUIRED\r\n";
-char *STATUS_500 = "500_INTERNAL_SERVER_ERROR\r\n";
-char *STATUS_501 = "501_NOT_IMPLEMENTED\r\n";
-char *STATUS_505 = "505_HTTP_VERSION_NOT_SUPPORTED\r\n";
+char *STATUS_200 = "200 OK\r\n";
+char *STATUS_204 = "204 No content\r\n";
+char *STATUS_401 = "401 Unauthorized\r\n";
+char *STATUS_404 = "404 Not Found\r\n";
+char *STATUS_411 = "411 Length Required\r\n";
+char *STATUS_500 = "500 Not Found\r\n";
+char *STATUS_501 = "501 Not Implemented\r\n";
+char *STATUS_505 = "505 HTTP Version not supported\r\n";
 
 static const char DATE_FORMAT_STR[]  = "%a, %d %b %Y %H:%M:%S GMT";
 
@@ -240,7 +240,7 @@ void handle_request(char *buf,int nbytes,char *response,char *ROOT){
 
   if (!request) {
     strcpy(response, request->http_version);
-    strcat(response, "\s");
+    strcat(response, " ");
     strcat(response, STATUS_500);
     strcat(response, "Server: liso/1.0\r\n");
     strcat(response, "Connection: close\r\n\r\n");  
@@ -251,7 +251,7 @@ void handle_request(char *buf,int nbytes,char *response,char *ROOT){
   if (!strcmp(request->http_version , "HTTP/1.1")) {
     //set http version for all
     strcpy(response, request->http_version);
-    strcat(response, "\s");
+    strcat(response, " ");
 
     if (!strcmp(request->http_method, "GET")) {
       handle_get(request, response, ROOT);
@@ -264,7 +264,7 @@ void handle_request(char *buf,int nbytes,char *response,char *ROOT){
     }
     else {//not implemented method
       strcpy(response, request->http_version);
-      strcat(response, "\s");
+      strcat(response, " ");
       strcat(response, STATUS_501);
       strcat(response, "Server: liso/1.0\r\n");
       strcat(response, "Connection: close\r\n");   
@@ -272,7 +272,7 @@ void handle_request(char *buf,int nbytes,char *response,char *ROOT){
   }
   else {//not supported HTTP VERSION
     strcpy(response, request->http_version);
-    strcat(response, "\s");
+    strcat(response, " ");
     strcat(response, STATUS_505);
     strcat(response, "Server: liso/1.0\r\n");
     strcat(response, "Connection: close\r\n\r\n"); 

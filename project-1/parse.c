@@ -15,6 +15,9 @@ Request * parse(char *buffer, int size) {
 	char buf[8192];
 	memset(buf, 0, 8192);
 
+	Request *request = (Request *) malloc(sizeof(Request));
+	request->header_count = 0;
+
 	state = STATE_START;
 	while (state != STATE_CRLFCRLF) {
 		char expected = 0;
@@ -49,19 +52,19 @@ Request * parse(char *buffer, int size) {
   //Valid End State
 	if (state == STATE_CRLFCRLF) {
 		fprintf(stderr, "parser 51");
-		Request *request = (Request *) malloc(sizeof(Request));
-		fprintf(stderr, "parser 53");
-    request->header_count=0;
-    //TODO You will need to handle resizing this in parser.y
-    request->headers = (Request_header *) malloc(sizeof(Request_header)*1);
-    fprintf(stderr, "parser 57");
+		request->header_count *= 2;
+	    //TODO You will need to handle resizing this in parser.y
+	    request->headers = (Request_header *) malloc(sizeof(Request_header)*1);
 		set_parsing_options(buf, i, request);
 
 		if (yyparse() == SUCCESS) {
-      return request;
+      		return request;
 		}
+	}else {
+		free(request);
 	}
   //TODO Handle Malformed Requests
   printf("Parsing Failed\n");
+  return NULL;
 
 }
