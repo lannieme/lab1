@@ -201,7 +201,7 @@ int main(int argc, char* argv[])
                       fprintf(stderr, "ERROR：not able to sent data to client");
                       Log(fp, "ERROR：not able to sent data to client\n");
                     }else{
-                      fprintf(stderr, "Sent responsez!");
+                      fprintf(stderr, "Sent response!");
                       Log(fp, "Sent response!\n");
                     }
 

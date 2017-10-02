@@ -15,6 +15,7 @@
 //set status code
 char *STATUS_200 = "200_OK\r\n";
 char *STATUS_204 = "204_NO_CONTENT\r\n";
+char *STATUS_401 = "401_UNAUTHORIZED\r\n";
 char *STATUS_404 = "404_NOT_FOUND\r\n";
 char *STATUS_411 = "411_LENGTH_REQUIRED\r\n";
 char *STATUS_500 = "500_INTERNAL_SERVER_ERROR\r\n";
@@ -77,6 +78,14 @@ void get_last_modified(char *filename, char *file_modified){
   strftime(file_modified, TIME_LENGTH, DATE_FORMAT_STR, gmtime(&(attrib.st_mtime)));
 }
 
+//handle large file
+void response_body(Response *response, char *file_content, size_t size){
+  int *max_content_size = 1000;
+  if (size > max_content_size){ 
+    size = max_content_size;
+  }
+  memcpy(response->file_content, file_content, size);
+}
 
 void handle_get(Request *request, char *response, char *ROOT){
   char filename[1024];
@@ -84,9 +93,6 @@ void handle_get(Request *request, char *response, char *ROOT){
   strcat(filename, request->http_uri);
 
   FILE *fp = fopen(filename, "rb");
-
-  printf("test");
-
 
   char header[HEADER_SIZE];
 
@@ -127,19 +133,17 @@ void handle_get(Request *request, char *response, char *ROOT){
     strcpy(header, file_type);
     strcat(header,"\r\n");
     // Connection 
-    // TODO
-    // Add "Close"
     strcat(header, "Connection: keep-alive\r\n");
   }
 
   char file_content[BODY_SIZE];
   get_file_content(fp, file_content);
+
   fclose(fp);
 
   strcat(response, header);
   strcat(response, "\r\n");
-  strcat(response, file_content);
-
+  response_body(response, file_content, file_size);
 }
 
 void handle_head(Request *request, char *response, char *ROOT){   
@@ -154,8 +158,6 @@ void handle_head(Request *request, char *response, char *ROOT){
   char body[BODY_SIZE];
 
   if (access(request->http_uri, F_OK ) == -1){
-    // response for non-existing file
-    strcat(header, "HTTP/1.1 ");
     strcat(header, STATUS_404);
 
     // Date & Time
@@ -176,7 +178,6 @@ void handle_head(Request *request, char *response, char *ROOT){
     printf("The file does not exists \n"); 
   } else {
     // 200 OK
-    strcat(header, "HTTP/1.1 ");
     strcat(header, STATUS_200);
     fprintf(stderr, "handle line 155 %s \n", header); 
     // Date & Time
@@ -216,56 +217,62 @@ void handle_head(Request *request, char *response, char *ROOT){
 }
 
 void handle_post(Request *request, char *response,char *ROOT){
-  if (access(request->http_uri, F_OK ) != -1 ) {
-    strcat(response, STATUS_200);  
+  char *filename = ROOT;
+  strcat(filename, request->http_uri);
+  if (access(filename, F_OK ) != -1 ) {
+    strcat(response, STATUS_200);
+    strcat(response, "Server: liso/1.0\r\n");
+    strcat(response, "Connection: close\r\n\r\n");  
   }
   else {
-    strcat(response, STATUS_204);
+    strcat(response, STATUS_401);
+    strcat(response, "Server: liso/1.0\r\n");
+    strcat(response, "Connection: close\r\n\r\n");  
   }
 }
 
 //handle request and point to corresponding method
 void handle_request(char *buf,int nbytes,char *response,char *ROOT){
-  fprintf(stderr, "handle line 196");
 
   Request *request = parse(buf, nbytes);
-  fprintf(stderr, "handle line 198");
 
   if (!request) {
-    fprintf(stderr, "handle line 202");
+    strcpy(response, request->http_version);
+    strcat(response, "\s");
     strcat(response, STATUS_500);
     strcat(response, "Server: liso/1.0\r\n");
-    strcat(response, "Connection: close\r\n");  
+    strcat(response, "Connection: close\r\n\r\n");  
   }
 
   fprintf(stderr, "206, http version %s\n", request->http_version);
   fprintf(stderr, "206, http method %s \n", request->http_method);
   if (!strcmp(request->http_version , "HTTP/1.1")) {
+    //set http version for all
     strcpy(response, request->http_version);
-    strcat(response, " ");
-    fprintf(stderr, "handle line 211\n");
+    strcat(response, "\s");
 
     if (!strcmp(request->http_method, "GET")) {
-      handle_get(request, response,ROOT);
-      fprintf(stderr, "handle line 215\n");
+      handle_get(request, response, ROOT);
     } 
     else if (!strcmp(request->http_method, "HEAD")) {
-      fprintf(stderr, "handle line 218\n");  
-      handle_head(request, response,ROOT);
-      fprintf(stderr, "handle line 219\n");        
+      handle_head(request, response, ROOT);       
     }
     else if (!strcmp(request->http_method, "POST")) {
-      handle_post(request, response,ROOT);        
+      handle_post(request, response, ROOT);        
     }
-    else {
-      strcat(response, STATUS_501);  
+    else {//not implemented method
+      strcpy(response, request->http_version);
+      strcat(response, "\s");
+      strcat(response, STATUS_501);
+      strcat(response, "Server: liso/1.0\r\n");
+      strcat(response, "Connection: close\r\n");   
     }
   }
-  else {
+  else {//not supported HTTP VERSION
     strcpy(response, request->http_version);
-    strcat(response, " ");
+    strcat(response, "\s");
     strcat(response, STATUS_505);
-    fprintf(stderr, "handle line 224");
+    strcat(response, "Server: liso/1.0\r\n");
+    strcat(response, "Connection: close\r\n\r\n"); 
   }
-  fprintf(stderr, "handle line 225");
 }
