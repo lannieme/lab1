@@ -10,9 +10,9 @@
 #ifndef REQUEST_HANDLER_H
 #define REQUEST_HANDLER_H
 
-void handle_request(char *buf,int nbytes,char *response);
-void handle_get(Request *request, char *response);
-void handle_head(Request *request, char *response);
-void handle_post(Request *request, char *response);
+void handle_request(char *buf,int nbytes,char *response, char *ROOT);
+void handle_get(Request *request, char *response, char *ROOT);
+void handle_head(Request *request, char *response, char *ROOT);
+void handle_post(Request *request, char *response, char *ROOT);
 
 #endif 
