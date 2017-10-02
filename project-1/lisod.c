@@ -25,7 +25,7 @@
 #define BUF_SIZE 8192
 #define MAX_NO_CLIENT 1024
 
-// FILE *server_log; //https://stackoverflow.com/questions/23856306/how-to-create-log-file-in-c
+FILE *fp;
 
 // get sockaddr, IPv4 or IPv6:
 void *get_in_addr(struct sockaddr *sa)
@@ -62,6 +62,8 @@ int main(int argc, char* argv[])
   char *server_log = argv[3];
   char *ROOT = argv[5];
 
+  fp = open_log(server_log);
+
 
   // server_log = fopen('log.text', 'w'); //init logger
   // if (server_log == NULL) {
@@ -77,7 +79,8 @@ int main(int argc, char* argv[])
   int i;
 
 
-  fprintf(stderr, "----- HTTP Server -----\n");
+  fprintf(stderr, "----- Liso Server -----\n");
+  Log(fp, "----- Start Liso Server ----- \n");
   
   /* all networked programs must create a socket */
   if ((sock = socket(PF_INET, SOCK_STREAM, 0)) == -1)
@@ -87,6 +90,7 @@ int main(int argc, char* argv[])
   }
   
   fprintf(stderr, "Server socket successfully created.\n");
+  Log(fp, "Server socket successfully created.\n");
 
   addr.sin_family = AF_INET;
   
@@ -102,6 +106,7 @@ int main(int argc, char* argv[])
   {
       close_socket(sock);
       fprintf(stderr, "Failed binding socket.\n");
+      Log(fp, "Failed binding socket.\n");
       return EXIT_FAILURE;
   }
 
@@ -110,6 +115,7 @@ int main(int argc, char* argv[])
   {
       close_socket(sock);
       fprintf(stderr, "Error listening on socket.\n");
+      Log(fp, "Error listening on socket.\n");
       return EXIT_FAILURE;
   }
 
@@ -125,7 +131,8 @@ int main(int argc, char* argv[])
     read_fds = master; // copy it
     if (select(fdmax+1, &read_fds, NULL, NULL, NULL) == -1) {
         perror("select");
-        fprintf(stderr, "ERROR: not able to select");
+        fprintf(stderr, "ERROR: not able to select\n");
+        Log(fp, "ERROR: not able to select\n");
         exit(4);
     }
 
@@ -138,11 +145,11 @@ int main(int argc, char* argv[])
                 client_sock = accept(sock,
                     (struct sockaddr *)&cli_addr,
                     &cli_size);
-                fprintf(stderr, "line 136");
 
                 if (client_sock == -1) {
                     perror("accept");
                     fprintf(stderr, "ERROR: not able to accept connection");
+                    Log(fp, "RROR: not able to accept connection\n");
                 } else {
                     FD_SET(client_sock, &master); // add to master set
                     if (client_sock > fdmax) {    // keep track of the max
@@ -172,11 +179,12 @@ int main(int argc, char* argv[])
                     // got error or connection closed by client
                     if (nbytes == 0) {
                         // connection closed
-                        printf("selectserver: socket %d hung up\n", i);
                         fprintf(stderr, "selectserver: socket %d hung up\n", i);
+                        Log(fp, "selectserver: socket %d hung up\n");
                     } else {
                         perror("recv");
                         fprintf(stderr, "ERROR: not able to receive data from socket %d\n",i );
+                        Log(fp, "ERROR: not able to receive data from socket %d\n");
                     }
                     close(i); // bye!
                     FD_CLR(i, &master); // remove from master set
@@ -191,8 +199,10 @@ int main(int argc, char* argv[])
                     if (status  == -1) {
                       perror("send");
                       fprintf(stderr, "ERROR：not able to sent data to client");
+                      Log(fp, "ERROR：not able to sent data to client\n");
                     }else{
                       fprintf(stderr, "Sent responsez!");
+                      Log(fp, "Sent response!\n");
                     }
 
                     free(response);
