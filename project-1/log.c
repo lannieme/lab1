@@ -1,4 +1,4 @@
-include "log.h"
+#include "log.h"
 
 FILE *open_log(const char *path){
     FILE *server_log; //https://stackoverflow.com/questions/23856306/how-to-create-log-file-in-c
@@ -31,7 +31,7 @@ void get_time(FILE *server_log){
 
 void Log(FILE *server_log, char *msg){
  	get_time(server_log);
- 	fprintf(server_log, "%s", mesg);
+ 	fprintf(server_log, "%s", msg);
 
     printf("%s", msg);
 }

@@ -18,7 +18,7 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 
-// #include "log.h"
+#include "log.h"
 #include "request_handler.h"
 
 // #define ECHO_PORT 9999
