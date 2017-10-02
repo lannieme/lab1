@@ -58,6 +58,11 @@ int main(int argc, char* argv[])
   int nbytes;
   int ECHO_PORT;
 
+  ECHO_PORT = atoi(argv[1]);
+  char *server_log = argv[3];
+  char *ROOT = argv[5];
+
+
   // server_log = fopen('log.text', 'w'); //init logger
   // if (server_log == NULL) {
   //   fprintf(stdout, "ERROR: Server log file does not exist");
@@ -72,7 +77,7 @@ int main(int argc, char* argv[])
   int i;
 
 
-  fprintf(stderr, "----- Echo Server -----\n");
+  fprintf(stderr, "----- HTTP Server -----\n");
   
   /* all networked programs must create a socket */
   if ((sock = socket(PF_INET, SOCK_STREAM, 0)) == -1)
@@ -84,7 +89,7 @@ int main(int argc, char* argv[])
   fprintf(stderr, "Server socket successfully created.\n");
 
   addr.sin_family = AF_INET;
-  ECHO_PORT = atoi(argv[1]);
+  
   addr.sin_port = htons(ECHO_PORT);
   addr.sin_addr.s_addr = INADDR_ANY;
 
@@ -176,32 +181,11 @@ int main(int argc, char* argv[])
                     close(i); // bye!
                     FD_CLR(i, &master); // remove from master set
                 } else { //data ready to proceed
-                    printf("%s", buf);
-                    printf("%d", nbytes);
 
-                    //allocating memory for the response
-                    // char* response = malloc(200000);
-                    handle_request(buf,nbytes,response);
+                    handle_request(buf,nbytes,response,ROOT);
 
-                    strcat(response, "\r\n");
-                    // // Log(logfile,"Printing Resposne before sending it to client:\n");
-                    // // Log(logfile, response);
+                    strcat(response, "\r\n\r\n");
 
-                    // //sending the http response to the client
-                    // if (send(i, response, strlen(response), 0) == -1) {
-                    //   fprintf(stderr, "ERROR：not able to sent data to client");
-
-                    // }else{
-                    //   fprintf(stderr, "Sent responsez!");
-                    // }
-                    // //free the allocated memory for response
-                    // free(response);
-
-
-
-
-
-                    // handle_request(buf,nbytes,response);
                     fprintf(stderr, "response here : %s\n",response );
                     int status = send(i, response, strlen(response), 0);
                     if (status  == -1) {
@@ -212,6 +196,8 @@ int main(int argc, char* argv[])
                     }
 
                     free(response);
+                    close(i); // bye!
+                    FD_CLR(i, &master); // remove from master set
                 }
             } // END handle data from client
         } // END got new incoming connection

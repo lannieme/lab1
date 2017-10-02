@@ -54,11 +54,13 @@ void get_file_content(FILE *fp, char *file_contents){
 }
 
 int get_file_length(char *filename){
+  int length = 0;
   fprintf(stderr, "handle line 57 \n"); 
   struct stat st;
   stat(filename, &st);
   fprintf(stderr, "handle line 60 %s \n", st.st_size); 
-  return st.st_size;
+  length = st.st_size;
+  return length;
 }
 
 void get_current_time(char *cur_time){
@@ -76,9 +78,10 @@ void get_last_modified(char *filename, char *file_modified){
 }
 
 
-void handle_get(Request *request, char *response){
+void handle_get(Request *request, char *response, char *ROOT){
   char filename[1024];
-  sprintf(filename, ".%s", request->http_uri);
+  strcpy(filename, ROOT);
+  strcat(filename, request->http_uri);
 
   FILE *fp = fopen(filename, "rb");
 
@@ -86,12 +89,14 @@ void handle_get(Request *request, char *response){
 
 
   char header[HEADER_SIZE];
-  char body[BODY_SIZE];
 
   if (access(request->http_uri, F_OK ) == -1){
     // response for non-existing file
     strcat(header, STATUS_404);
+    strcat(header, "Server: liso/1.0\r\n");
+    strcat(header, "Connection: close\r\n\r\n");
     printf("The file does not exists \n"); 
+
   } else {
     // 200 OK
     strcat(header, "HTTP/1.1 ");
@@ -137,9 +142,11 @@ void handle_get(Request *request, char *response){
 
 }
 
-void handle_head(Request *request, char *response){   
+void handle_head(Request *request, char *response, char *ROOT){   
   char filename[1024];
-  sprintf(filename, ".%s", request->http_uri);
+  fprintf(stderr,"root is %s\n", ROOT);
+  strcpy(filename, ROOT);
+  strcat(filename, request->http_uri);
   fprintf(stderr, "filename %s \n", filename);  
   FILE *fp = fopen(filename, "rb");
   
@@ -192,7 +199,7 @@ void handle_head(Request *request, char *response){
   strcat(response, header);
 }
 
-void handle_post(Request *request, char *response){
+void handle_post(Request *request, char *response,char *ROOT){
   if (access(request->http_uri, F_OK ) != -1 ) {
     strcat(response, STATUS_200);  
   }
@@ -202,7 +209,7 @@ void handle_post(Request *request, char *response){
 }
 
 //handle request and point to corresponding method
-void handle_request(char *buf,int nbytes,char *response){
+void handle_request(char *buf,int nbytes,char *response,char *ROOT){
   fprintf(stderr, "handle line 196");
 
   Request *request = parse(buf, nbytes);
@@ -210,7 +217,9 @@ void handle_request(char *buf,int nbytes,char *response){
 
   if (!request) {
     fprintf(stderr, "handle line 202");
-    strcat(response, STATUS_500);  
+    strcat(response, STATUS_500);
+    strcat(response, "Server: liso/1.0\r\n");
+    strcat(response, "Connection: close\r\n");  
   }
 
   fprintf(stderr, "206, http version %s\n", request->http_version);
@@ -221,16 +230,16 @@ void handle_request(char *buf,int nbytes,char *response){
     fprintf(stderr, "handle line 211\n");
 
     if (!strcmp(request->http_method, "GET")) {
-      handle_get(request, response);
+      handle_get(request, response,ROOT);
       fprintf(stderr, "handle line 215\n");
     } 
     else if (!strcmp(request->http_method, "HEAD")) {
       fprintf(stderr, "handle line 218\n");  
-      handle_head(request, response);
+      handle_head(request, response,ROOT);
       fprintf(stderr, "handle line 219\n");        
     }
     else if (!strcmp(request->http_method, "POST")) {
-      handle_post(request, response);        
+      handle_post(request, response,ROOT);        
     }
     else {
       strcat(response, STATUS_501);  
