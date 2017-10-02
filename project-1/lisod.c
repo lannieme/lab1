@@ -176,13 +176,42 @@ int main(int argc, char* argv[])
                     close(i); // bye!
                     FD_CLR(i, &master); // remove from master set
                 } else { //data ready to proceed
+                    printf("%s", buf);
+                    printf("%d", nbytes);
+
+                    //allocating memory for the response
+                    // char* response = malloc(200000);
                     handle_request(buf,nbytes,response);
+
+                    strcat(response, "\r\n");
+                    // // Log(logfile,"Printing Resposne before sending it to client:\n");
+                    // // Log(logfile, response);
+
+                    // //sending the http response to the client
+                    // if (send(i, response, strlen(response), 0) == -1) {
+                    //   fprintf(stderr, "ERROR：not able to sent data to client");
+
+                    // }else{
+                    //   fprintf(stderr, "Sent responsez!");
+                    // }
+                    // //free the allocated memory for response
+                    // free(response);
+
+
+
+
+
+                    // handle_request(buf,nbytes,response);
                     fprintf(stderr, "response here : %s\n",response );
-                    int status = send(i, buf, strlen(buf), 0);
+                    int status = send(i, response, strlen(response), 0);
                     if (status  == -1) {
                       perror("send");
                       fprintf(stderr, "ERROR：not able to sent data to client");
+                    }else{
+                      fprintf(stderr, "Sent responsez!");
                     }
+
+                    free(response);
                 }
             } // END handle data from client
         } // END got new incoming connection
