@@ -195,10 +195,10 @@ request_line: token t_sp text t_sp text t_crlf {
 }
 
 request_header: token ows t_colon ows text ows t_crlf {
-   strcpy(parsing_request->headers[parsing_request->header_count].header_name, $1);
- strcpy(parsing_request->headers[parsing_request->header_count].header_value, $5);
- parsing_request->headers = realloc(parsing_request->headers, sizeof(Request_header)*(parsing_request->header_count + 1));
- parsing_request->header_count++;
+  	strcpy(parsing_request->headers[parsing_request->header_count].header_name, $1);
+	strcpy(parsing_request->headers[parsing_request->header_count].header_value, $5);
+	parsing_request->headers = realloc(parsing_request->headers, sizeof(Request_header)*(parsing_request->header_count + 1));
+	parsing_request->header_count++;
 };
 
 
@@ -214,10 +214,9 @@ request_header: token ows t_colon ows text ows t_crlf {
 request_headers: request_header | request_header request_headers;
 
 request: request_line request_headers t_crlf{
- YPRINTF("parsing_request: Matched Success.\n");
- return SUCCESS;
+	YPRINTF("parsing_request: Matched Success.\n");
+	return SUCCESS;
 };
-
 
 %%
 

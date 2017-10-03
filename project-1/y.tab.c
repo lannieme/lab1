@@ -1484,18 +1484,18 @@ yyreduce:
   case 17:
 #line 197 "parser.y"
     {
-   strcpy(parsing_request->headers[parsing_request->header_count].header_name, (yyvsp[(1) - (7)].str));
- strcpy(parsing_request->headers[parsing_request->header_count].header_value, (yyvsp[(5) - (7)].str));
- parsing_request->headers = realloc(parsing_request->headers, sizeof(Request_header)*(parsing_request->header_count + 1));
- parsing_request->header_count++;
+  	strcpy(parsing_request->headers[parsing_request->header_count].header_name, (yyvsp[(1) - (7)].str));
+	strcpy(parsing_request->headers[parsing_request->header_count].header_value, (yyvsp[(5) - (7)].str));
+	parsing_request->headers = realloc(parsing_request->headers, sizeof(Request_header)*(parsing_request->header_count + 1));
+	parsing_request->header_count++;
 }
     break;
 
   case 20:
 #line 216 "parser.y"
     {
- YPRINTF("parsing_request: Matched Success.\n");
- return SUCCESS;
+	YPRINTF("parsing_request: Matched Success.\n");
+	return SUCCESS;
 }
     break;
 
@@ -1715,7 +1715,7 @@ yyreturn:
 }
 
 
-#line 222 "parser.y"
+#line 221 "parser.y"
 
 
 /* C code */

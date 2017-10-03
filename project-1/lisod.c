@@ -64,6 +64,13 @@ int main(int argc, char* argv[])
 
   fp = open_log(server_log);
 
+
+  // server_log = fopen('log.text', 'w'); //init logger
+  // if (server_log == NULL) {
+  //   fprintf(stdout, "ERROR: Server log file does not exist");
+  //   return EXIT_FAILURE;
+  // }
+
   fd_set master;    // master file descriptor list
   fd_set read_fds;  // temp file descriptor list for select()
   int fdmax;        // maximum file descriptor number
