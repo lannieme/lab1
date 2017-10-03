@@ -77,17 +77,6 @@ void get_last_modified(char *filename, char *file_modified){
   strftime(file_modified, TIME_LENGTH, DATE_FORMAT_STR, gmtime(&(attrib.st_mtime)));
 }
 
-//handle large file
-char response_body(char *file_content, size_t size){
-  int *max_content_size = 1000;
-  if (size > max_content_size){ 
-    size = max_content_size;
-  }
-  char file_content_output[size];
-  memcpy(file_content_output, file_content, size);
-  return file_content_output;
-}
-
 void handle_get(Request *request, char *response, char *ROOT){
   char *filename = malloc(4096);
   strcpy(filename, ROOT);
@@ -193,8 +182,6 @@ void handle_get(Request *request, char *response, char *ROOT){
     char *file_content = malloc(file_size * sizeof(char));
     get_file_content(fp, file_content);
 
-
-
     fclose(fp);
 
     strcat(response, header);
@@ -218,7 +205,6 @@ void handle_head(Request *request, char *response, char *ROOT){
 
   struct stat statRes;//https://stackoverflow.com/questions/20238042/is-there-a-c-function-to-get-permissions-of-a-file
 
-  // if (access(filename, F_OK ) == -1){
   if(stat(filename, &statRes) < 0){
     strcpy(header, STATUS_404);
     // Server
@@ -231,21 +217,8 @@ void handle_head(Request *request, char *response, char *ROOT){
     strcat(header, "\r\n");
     strcat(header, "Connection: close\r\n");
     strcat(header, "Content-type: text/html\r\n\r\n");
-
-    // strcat(body, "<head>\r\n");
-    // strcat(body, "<title>Error response</title>\r\n");
-    // strcat(body, "</head>\r\n");
-    // strcat(body, "<body>\r\n");
-    // strcat(body, "<h1>Error response</h1>\r\n");
-    // strcat(body, "<p>Error code 404.</p>\r\n");
-    // strcat(body, "<p>Message: Not Found.</p>\r\n");
-    // strcat(body, "<p>Error code explanation: 404 = Nothing matches the given URI.</p>\r\n");
-    // strcat(body, "</body>");
-    
     strcat(response, header);
-    // strcat(response, body);
 
-    
     printf("The file does not exists \n"); 
   } else if ((statRes.st_mode & S_IRUSR) == 0 ) {
     //no permission to read
@@ -261,18 +234,7 @@ void handle_head(Request *request, char *response, char *ROOT){
     strcat(header, "Connection: close\r\n");
     strcat(header, "Content-type: text/html\r\n\r\n");
 
-    // strcat(body, "<head>\r\n");
-    // strcat(body, "<title>Error response</title>\r\n");
-    // strcat(body, "</head>\r\n");
-    // strcat(body, "<body>\r\n");
-    // strcat(body, "<h1>Error response</h1>\r\n");
-    // strcat(body, "<p>Error code 403.</p>\r\n");
-    // strcat(body, "<p>Message: Forbidden.</p>\r\n");
-    // strcat(body, "<p>Error code explanation: 403 = Permission denied.</p>\r\n");
-    // strcat(body, "</body>");
-    
     strcat(response, header);
-    // strcat(response, body);
   } 
     else{
     // 200 OK
@@ -345,7 +307,6 @@ void handle_post(Request *request, char *response,char *ROOT){
 
 //handle request and point to corresponding method
 void handle_request(char *buf,int nbytes,char *response,char *ROOT){
-  // printf("Buffer: %s\n", buf);
   Request *request = parse(buf, nbytes);
 
   if (!request) {

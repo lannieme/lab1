@@ -64,13 +64,6 @@ int main(int argc, char* argv[])
 
   fp = open_log(server_log);
 
-
-  // server_log = fopen('log.text', 'w'); //init logger
-  // if (server_log == NULL) {
-  //   fprintf(stdout, "ERROR: Server log file does not exist");
-  //   return EXIT_FAILURE;
-  // }
-
   fd_set master;    // master file descriptor list
   fd_set read_fds;  // temp file descriptor list for select()
   int fdmax;        // maximum file descriptor number
@@ -83,7 +76,7 @@ int main(int argc, char* argv[])
   /* all networked programs must create a socket */
   if ((sock = socket(PF_INET, SOCK_STREAM, 0)) == -1)
   {
-      fprintf(stderr, "Failed creating socket.\n");
+      Log(fp, "Failed creating socket.\n");
       return EXIT_FAILURE;
   }
 
@@ -102,7 +95,6 @@ int main(int argc, char* argv[])
   if (bind(sock, (struct sockaddr *) &addr, sizeof(addr)))
   {
       close_socket(sock);
-      fprintf(stderr, "Failed binding socket.\n");
       Log(fp, "Failed binding socket.\n");
       return EXIT_FAILURE;
   }
@@ -110,7 +102,6 @@ int main(int argc, char* argv[])
   if (listen(sock, 5))
   {
       close_socket(sock);
-      fprintf(stderr, "Error listening on socket.\n");
       Log(fp, "Error listening on socket.\n");
       return EXIT_FAILURE;
   }
@@ -126,7 +117,6 @@ int main(int argc, char* argv[])
     read_fds = master; // copy it
     if (select(fdmax+1, &read_fds, NULL, NULL, NULL) == -1) {
         perror("select");
-        fprintf(stderr, "ERROR: not able to select\n");
         Log(fp, "ERROR: not able to select\n");
         exit(4);
     }
@@ -143,8 +133,7 @@ int main(int argc, char* argv[])
 
                 if (client_sock == -1) {
                     perror("accept");
-                    fprintf(stderr, "ERROR: not able to accept connection");
-                    Log(fp, "RROR: not able to accept connection\n");
+                    Log(fp, "ERROR: not able to accept connection\n");
                 } else {
                     FD_SET(client_sock, &master); // add to master set
                     if (client_sock > fdmax) {    // keep track of the max
@@ -186,7 +175,6 @@ int main(int argc, char* argv[])
                 } else { //data ready to proceed
 
                     handle_request(buf,nbytes,response,ROOT);
-                    // fprintf(stderr, "buffer: %s \r\n", buf);
                     memset(buf,0,nbytes);
 
                     fprintf(stderr, "response here : %s\n",response );
@@ -213,6 +201,5 @@ int main(int argc, char* argv[])
   }
   close_log(fp);
   close_socket(sock);
-  // fclose(server_log);
   return EXIT_SUCCESS;
 }
