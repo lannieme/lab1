@@ -465,8 +465,8 @@ static const yytype_int8 yyrhs[] =
 static const yytype_uint8 yyrline[] =
 {
        0,   110,   110,   111,   114,   120,   124,   150,   151,   154,
-     157,   165,   169,   177,   181,   185,   190,   197,   211,   217,
-     220
+     157,   165,   169,   177,   181,   185,   190,   197,   212,   218,
+     221
 };
 #endif
 
@@ -1487,14 +1487,15 @@ yyreduce:
 #line 197 "parser.y"
     {
 	YPRINTF("request_Header:\n%s\n%s\n",(yyvsp[(1) - (7)].str),(yyvsp[(5) - (7)].str));
-  strcpy(parsing_request->headers[parsing_request->header_count].header_name, (yyvsp[(1) - (7)].str));
+	parsing_request->headers = realloc(parsing_request->headers, sizeof(Request_header)*(parsing_request->header_count + 1));
+  	strcpy(parsing_request->headers[parsing_request->header_count].header_name, (yyvsp[(1) - (7)].str));
 	strcpy(parsing_request->headers[parsing_request->header_count].header_value, (yyvsp[(5) - (7)].str));
-	parsing_request->header_count++;
+	parsing_request->header_count ++;
 }
     break;
 
   case 18:
-#line 211 "parser.y"
+#line 212 "parser.y"
     {
 	YPRINTF("parsing_request: Matched Success.\n");
 	return SUCCESS;
@@ -1502,7 +1503,7 @@ yyreduce:
     break;
 
   case 19:
-#line 217 "parser.y"
+#line 218 "parser.y"
     {
 	YPRINTF("parsing_request: Matched Success.\n");
 	return SUCCESS;
@@ -1510,7 +1511,7 @@ yyreduce:
     break;
 
   case 20:
-#line 220 "parser.y"
+#line 221 "parser.y"
     {
 	YPRINTF("parsing_request: Matched Success.\n");
 	return SUCCESS;
@@ -1519,7 +1520,7 @@ yyreduce:
 
 
 /* Line 1267 of yacc.c.  */
-#line 1523 "y.tab.c"
+#line 1524 "y.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1733,7 +1734,7 @@ yyreturn:
 }
 
 
-#line 225 "parser.y"
+#line 226 "parser.y"
 
 
 /* C code */

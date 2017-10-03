@@ -224,11 +224,23 @@ void handle_post(Request *request, char *response,char *ROOT){
   if (access(filename, F_OK ) != -1 ) {
     strcat(response, STATUS_200);
     strcat(response, "Server: liso/1.0\r\n");
+    char date_time[TIME_LENGTH];
+    get_current_time(date_time);
+    strcat(response, "Date: ");
+    strcat(response, date_time);
+    strcat(response, "\r\n");
+    strcat(response, "Content-Type: text/html\r\n");
     strcat(response, "Connection: close\r\n\r\n");  
   }
   else {
     strcat(response, STATUS_401);
     strcat(response, "Server: liso/1.0\r\n");
+    char date_time[TIME_LENGTH];
+    get_current_time(date_time);
+    strcat(response, "Date: ");
+    strcat(response, date_time);
+    strcat(response, "\r\n");
+    strcat(response, "Content-Type: text/html\r\n");
     strcat(response, "Connection: close\r\n\r\n");  
   }
 }
@@ -267,6 +279,12 @@ void handle_request(char *buf,int nbytes,char *response,char *ROOT){
       strcat(response, " ");
       strcat(response, STATUS_501);
       strcat(response, "Server: liso/1.0\r\n");
+      char date_time[TIME_LENGTH];
+      get_current_time(date_time);
+      strcat(response, "Date: ");
+      strcat(response, date_time);
+      strcat(response, "\r\n");
+      strcat(response, "Content-Type: text/html\r\n");
       strcat(response, "Connection: close\r\n");   
     }
   }
@@ -275,6 +293,12 @@ void handle_request(char *buf,int nbytes,char *response,char *ROOT){
     strcat(response, " ");
     strcat(response, STATUS_505);
     strcat(response, "Server: liso/1.0\r\n");
+    char date_time[TIME_LENGTH];
+    get_current_time(date_time);
+    strcat(response, "Date: ");
+    strcat(response, date_time);
+    strcat(response, "\r\n");
+    strcat(response, "Content-Type: text/html\r\n");
     strcat(response, "Connection: close\r\n\r\n"); 
   }
 }
