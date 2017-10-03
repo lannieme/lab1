@@ -92,17 +92,32 @@ char response_body(char *file_content, size_t size){
 }
 
 void handle_get(Request *request, char *response, char *ROOT){
+  // fprintf(stderr,"line 95 \n");
+  // char *filename = malloc(4096);
+  // strcpy(filename, ROOT);
+  // strcat(filename, request->http_uri);
+  // fprintf(stderr,"filename is %s\n", filename);
+
+  // FILE *fp = fopen(filename, "rb");
+
+  // char header[HEADER_SIZE];
+  // char body[BODY_SIZE];
+  // struct stat statRes;//https://stackoverflow.com/questions/20238042/is-there-a-c-function-to-get-permissions-of-a-file
+
   char *filename = malloc(4096);
+  fprintf(stderr,"root is %s\n", ROOT);
   strcpy(filename, ROOT);
   strcat(filename, request->http_uri);
-
+  fprintf(stderr, "filename %s \n", filename);  
   FILE *fp = fopen(filename, "rb");
-
+  
   char header[HEADER_SIZE];
+  fprintf(stderr, "handle line 212  %s ih \n", header);
   char body[BODY_SIZE];
-  struct stat statRes;//https://stackoverflow.com/questions/20238042/is-there-a-c-function-to-get-permissions-of-a-file
 
-  if(stat(filename, &statRes) < 0){
+  struct stat statRes;
+  
+  if(access(request->http_uri, F_OK ) == -1){
     strcat(header, STATUS_404);
     // Server
     strcat(header, "Server: Liso/1.0\r\n");
@@ -184,7 +199,7 @@ void handle_get(Request *request, char *response, char *ROOT){
     char file_type[FILE_TYPE_LENGTH];
     get_file_type(filename, file_type);
     strcat(header, "Content-Type: ");
-    strcpy(header, file_type);
+    strcat(header, file_type);
     strcat(header,"\r\n");
     // Connection 
     strcat(header, "Connection: keep-alive\r\n");
