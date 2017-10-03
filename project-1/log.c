@@ -35,3 +35,7 @@ void Log(FILE *server_log, char *msg){
 
     printf("%s", msg);
 }
+
+void close_log(FILE *fp){
+    fclose(fp);
+}

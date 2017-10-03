@@ -446,27 +446,27 @@ static const yytype_uint8 yytranslate[] =
 static const yytype_uint8 yyprhs[] =
 {
        0,     0,     3,     5,     7,     9,    11,    14,    16,    18,
-      20,    22,    24,    28,    29,    31,    33,    40,    48,    52,
-      54
+      20,    22,    24,    28,    29,    31,    33,    40,    48,    50,
+      53
 };
 
 /* YYRHS -- A `-1'-separated list of the rules' RHS.  */
 static const yytype_int8 yyrhs[] =
 {
-      21,     0,    -1,     7,    -1,     5,    -1,     6,    -1,    14,
+      22,     0,    -1,     7,    -1,     5,    -1,     6,    -1,    14,
       -1,    15,    14,    -1,    14,    -1,    10,    -1,     9,    -1,
        4,    -1,    16,    -1,    17,    18,    16,    -1,    -1,    11,
       -1,    12,    -1,    15,    11,    17,    11,    17,     3,    -1,
-      15,    18,     9,    18,    17,    18,     3,    -1,    19,    22,
-       3,    -1,    20,    -1,    22,    20,    -1
+      15,    18,     9,    18,    17,    18,     3,    -1,    20,    -1,
+      21,    20,    -1,    19,    21,     3,    -1
 };
 
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
        0,   110,   110,   111,   114,   120,   124,   150,   151,   154,
-     157,   165,   169,   177,   181,   185,   190,   197,   212,   218,
-     221
+     157,   165,   169,   177,   181,   185,   190,   197,   214,   217,
+     222
 };
 #endif
 
@@ -479,7 +479,7 @@ static const char *const yytname[] =
   "t_dot", "t_token_char", "t_lws", "t_colon", "t_separators", "t_sp",
   "t_ws", "$accept", "allowed_char_for_token", "token",
   "allowed_char_for_text", "text", "ows", "request_line", "request_header",
-  "request", "request_headers", 0
+  "request_headers", "request", 0
 };
 #endif
 
@@ -497,7 +497,7 @@ static const yytype_uint16 yytoknum[] =
 static const yytype_uint8 yyr1[] =
 {
        0,    13,    14,    14,    14,    15,    15,    16,    16,    16,
-      16,    17,    17,    18,    18,    18,    19,    20,    21,    22,
+      16,    17,    17,    18,    18,    18,    19,    20,    21,    21,
       22
 };
 
@@ -505,8 +505,8 @@ static const yytype_uint8 yyr1[] =
 static const yytype_uint8 yyr2[] =
 {
        0,     2,     1,     1,     1,     1,     2,     1,     1,     1,
-       1,     1,     3,     0,     1,     1,     6,     7,     3,     1,
-       2
+       1,     1,     3,     0,     1,     1,     6,     7,     1,     2,
+       3
 };
 
 /* YYDEFACT[STATE-NAME] -- Default rule to reduce with in state
@@ -515,15 +515,15 @@ static const yytype_uint8 yyr2[] =
 static const yytype_uint8 yydefact[] =
 {
        0,     3,     4,     2,     5,     0,     0,     0,     0,     6,
-      13,    19,     0,     1,    10,     9,     8,     7,    11,    13,
-      14,    15,     0,    18,    20,     0,     0,    13,    13,    12,
+      13,    18,     0,     1,    10,     9,     8,     7,    11,    13,
+      14,    15,     0,    20,    19,     0,     0,    13,    13,    12,
        0,    16,    13,     0,    17
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,    17,    10,    18,    19,    26,     6,    11,     7,    12
+      -1,    17,    10,    18,    19,    26,     6,    11,    12,     7
 };
 
 /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
@@ -572,8 +572,8 @@ static const yytype_int8 yycheck[] =
    symbol of state STATE-NUM.  */
 static const yytype_uint8 yystos[] =
 {
-       0,     5,     6,     7,    14,    15,    19,    21,    11,    14,
-      15,    20,    22,     0,     4,     9,    10,    14,    16,    17,
+       0,     5,     6,     7,    14,    15,    19,    22,    11,    14,
+      15,    20,    21,     0,     4,     9,    10,    14,    16,    17,
       11,    12,    18,     3,    20,    11,    18,     9,    17,    16,
       18,     3,    17,    18,     3
 };
@@ -1487,15 +1487,14 @@ yyreduce:
 #line 197 "parser.y"
     {
 	YPRINTF("request_Header:\n%s\n%s\n",(yyvsp[(1) - (7)].str),(yyvsp[(5) - (7)].str));
-	parsing_request->headers = realloc(parsing_request->headers, sizeof(Request_header)*(parsing_request->header_count + 1));
   	strcpy(parsing_request->headers[parsing_request->header_count].header_name, (yyvsp[(1) - (7)].str));
 	strcpy(parsing_request->headers[parsing_request->header_count].header_value, (yyvsp[(5) - (7)].str));
-	parsing_request->header_count ++;
+	parsing_request->header_count *= 2;
 }
     break;
 
   case 18:
-#line 212 "parser.y"
+#line 214 "parser.y"
     {
 	YPRINTF("parsing_request: Matched Success.\n");
 	return SUCCESS;
@@ -1503,7 +1502,7 @@ yyreduce:
     break;
 
   case 19:
-#line 218 "parser.y"
+#line 217 "parser.y"
     {
 	YPRINTF("parsing_request: Matched Success.\n");
 	return SUCCESS;
@@ -1511,7 +1510,7 @@ yyreduce:
     break;
 
   case 20:
-#line 221 "parser.y"
+#line 222 "parser.y"
     {
 	YPRINTF("parsing_request: Matched Success.\n");
 	return SUCCESS;
@@ -1520,7 +1519,7 @@ yyreduce:
 
 
 /* Line 1267 of yacc.c.  */
-#line 1524 "y.tab.c"
+#line 1523 "y.tab.c"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -1734,7 +1733,7 @@ yyreturn:
 }
 
 
-#line 226 "parser.y"
+#line 227 "parser.y"
 
 
 /* C code */

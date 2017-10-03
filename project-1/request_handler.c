@@ -16,9 +16,10 @@
 char *STATUS_200 = "200 OK\r\n";
 char *STATUS_204 = "204 No content\r\n";
 char *STATUS_401 = "401 Unauthorized\r\n";
+char *STATUS_403 = "403 Forbidden\r\n";
 char *STATUS_404 = "404 Not Found\r\n";
 char *STATUS_411 = "411 Length Required\r\n";
-char *STATUS_500 = "500 Not Found\r\n";
+char *STATUS_500 = "500 Internal Server Error\r\n";
 char *STATUS_501 = "501 Not Implemented\r\n";
 char *STATUS_505 = "505 HTTP Version not supported\r\n";
 
@@ -59,7 +60,8 @@ int get_file_length(char *filename){
   fprintf(stderr, "handle line 57 \n"); 
   struct stat st;
   stat(filename, &st);
-  fprintf(stderr, "handle line 60 %s \n", st.st_size); 
+  printf("File name is %s\n", filename);
+  fprintf(stderr, "handle line 60 %d \n", st.st_size); 
   length = st.st_size;
   return length;
 }
@@ -90,24 +92,74 @@ char response_body(char *file_content, size_t size){
 }
 
 void handle_get(Request *request, char *response, char *ROOT){
-  char filename[1024];
+  char *filename = malloc(4096);
   strcpy(filename, ROOT);
   strcat(filename, request->http_uri);
 
   FILE *fp = fopen(filename, "rb");
 
   char header[HEADER_SIZE];
+  char body[BODY_SIZE];
+  struct stat statRes;//https://stackoverflow.com/questions/20238042/is-there-a-c-function-to-get-permissions-of-a-file
 
-  if (access(request->http_uri, F_OK ) == -1){
-    // response for non-existing file
+  if(stat(filename, &statRes) < 0){
     strcat(header, STATUS_404);
-    strcat(header, "Server: liso/1.0\r\n");
-    strcat(header, "Connection: close\r\n\r\n");
+    // Server
+    strcat(header, "Server: Liso/1.0\r\n");
+    // Date & Time
+    char date_time[TIME_LENGTH];
+    get_current_time(date_time);
+    strcat(header, "Date: ");
+    strcat(header, date_time);
+    strcat(header, "\r\n");
+    strcat(header, "Connection: close\r\n");
+    strcat(header, "Content-type: text/html\r\n\r\n");
+
+    strcat(body, "<head>\r\n");
+    strcat(body, "<title>Error response</title>\r\n");
+    strcat(body, "</head>\r\n");
+    strcat(body, "<body>\r\n");
+    strcat(body, "<h1>Error response</h1>\r\n");
+    strcat(body, "<p>Error code 404.</p>\r\n");
+    strcat(body, "<p>Message: Not Found.</p>\r\n");
+    strcat(body, "<p>Error code explanation: 404 = Nothing matches the given URI.</p>\r\n");
+    strcat(body, "</body>");
+    
+    strcat(response, header);
+    strcat(response, body);
+
+    
     printf("The file does not exists \n"); 
 
-  } else {
+  } else if ((statRes.st_mode & S_IRUSR) == 0 ) {
+    //no permission to read
+    strcat(header, STATUS_403);
+    // Server
+    strcat(header, "Server: Liso/1.0\r\n");
+    // Date & Time
+    char date_time[TIME_LENGTH];
+    get_current_time(date_time);
+    strcat(header, "Date: ");
+    strcat(header, date_time);
+    strcat(header, "\r\n");
+    strcat(header, "Connection: close\r\n");
+    strcat(header, "Content-type: text/html\r\n\r\n");
+
+    strcat(body, "<head>\r\n");
+    strcat(body, "<title>Error response</title>\r\n");
+    strcat(body, "</head>\r\n");
+    strcat(body, "<body>\r\n");
+    strcat(body, "<h1>Error response</h1>\r\n");
+    strcat(body, "<p>Error code 403.</p>\r\n");
+    strcat(body, "<p>Message: Forbidden.</p>\r\n");
+    strcat(body, "<p>Error code explanation: 403 = Permission denied.</p>\r\n");
+    strcat(body, "</body>");
+    
+    strcat(response, header);
+    strcat(response, body);
+  } 
+    else {
     // 200 OK
-    strcat(header, "HTTP/1.1 ");
     strcat(header, STATUS_200);
     // Date & Time
     char date_time[TIME_LENGTH];
@@ -149,7 +201,7 @@ void handle_get(Request *request, char *response, char *ROOT){
 }
 
 void handle_head(Request *request, char *response, char *ROOT){   
-  char filename[1024];
+  char *filename = malloc(4096);
   fprintf(stderr,"root is %s\n", ROOT);
   strcpy(filename, ROOT);
   strcat(filename, request->http_uri);
@@ -157,11 +209,72 @@ void handle_head(Request *request, char *response, char *ROOT){
   FILE *fp = fopen(filename, "rb");
   
   char header[HEADER_SIZE];
+  fprintf(stderr, "handle line 212  %s ih \n", header);
   char body[BODY_SIZE];
 
-  if (access(request->http_uri, F_OK ) == -1){
-    strcat(header, STATUS_404);
+  struct stat statRes;//https://stackoverflow.com/questions/20238042/is-there-a-c-function-to-get-permissions-of-a-file
 
+  // if (access(filename, F_OK ) == -1){
+  if(stat(filename, &statRes) < 0){
+    strcpy(header, STATUS_404);
+    // Server
+    strcat(header, "Server: Liso/1.0\r\n");
+    // Date & Time
+    char date_time[TIME_LENGTH];
+    get_current_time(date_time);
+    strcat(header, "Date: ");
+    strcat(header, date_time);
+    strcat(header, "\r\n");
+    strcat(header, "Connection: close\r\n");
+    strcat(header, "Content-type: text/html\r\n\r\n");
+
+    // strcat(body, "<head>\r\n");
+    // strcat(body, "<title>Error response</title>\r\n");
+    // strcat(body, "</head>\r\n");
+    // strcat(body, "<body>\r\n");
+    // strcat(body, "<h1>Error response</h1>\r\n");
+    // strcat(body, "<p>Error code 404.</p>\r\n");
+    // strcat(body, "<p>Message: Not Found.</p>\r\n");
+    // strcat(body, "<p>Error code explanation: 404 = Nothing matches the given URI.</p>\r\n");
+    // strcat(body, "</body>");
+    
+    strcat(response, header);
+    // strcat(response, body);
+
+    
+    printf("The file does not exists \n"); 
+  } else if ((statRes.st_mode & S_IRUSR) == 0 ) {
+    //no permission to read
+    strcpy(header, STATUS_403);
+    // Server
+    strcat(header, "Server: Liso/1.0\r\n");
+    // Date & Time
+    char date_time[TIME_LENGTH];
+    get_current_time(date_time);
+    strcat(header, "Date: ");
+    strcat(header, date_time);
+    strcat(header, "\r\n");
+    strcat(header, "Connection: close\r\n");
+    strcat(header, "Content-type: text/html\r\n\r\n");
+
+    // strcat(body, "<head>\r\n");
+    // strcat(body, "<title>Error response</title>\r\n");
+    // strcat(body, "</head>\r\n");
+    // strcat(body, "<body>\r\n");
+    // strcat(body, "<h1>Error response</h1>\r\n");
+    // strcat(body, "<p>Error code 403.</p>\r\n");
+    // strcat(body, "<p>Message: Forbidden.</p>\r\n");
+    // strcat(body, "<p>Error code explanation: 403 = Permission denied.</p>\r\n");
+    // strcat(body, "</body>");
+    
+    strcat(response, header);
+    // strcat(response, body);
+  } 
+    else{
+    // 200 OK
+    fprintf(stderr, "handle line 274  %s ih \n", header);   
+    strcpy(header, STATUS_200);
+    fprintf(stderr, "handle line 275  %s hi \n", header); 
     // Date & Time
     char date_time[TIME_LENGTH];
     get_current_time(date_time);
@@ -170,52 +283,29 @@ void handle_head(Request *request, char *response, char *ROOT){
     strcat(header, "\r\n");
     // Server
     strcat(header, "Server: Liso/1.0\r\n");
-    strcat(header, "Content-length: 8192");
-    // strcat(header, HEADER_SIZE);
-    strcat(header, "\r\n");
-
-    strcat(header, "Connection: Closed\r\n");
-    // strcat(header, "Content-type: text/html\r\n");
-
-    printf("The file does not exists \n"); 
-  } else {
-    // 200 OK
-    strcat(header, STATUS_200);
-    fprintf(stderr, "handle line 155 %s \n", header); 
-    // Date & Time
-    char date_time[TIME_LENGTH];
-    get_current_time(date_time);
-    strcat(header, "Date: ");
-    strcat(header, date_time);
-    strcat(header, "\r\n");
-    fprintf(stderr, "handle line 162 %s \n", header); 
-    // Server
-    strcat(header, "Server: Liso/1.0\n");
     // Last Modified
     char last_modified_time[TIME_LENGTH];
     get_last_modified(filename, last_modified_time);
     strcat(header, "Last-Modified: ");
     strcat(header, last_modified_time);
     strcat(header, "\r\n");
-    fprintf(stderr, "handle line 171 %s \n", header); 
     // Content-Length
-    strcat(header, "Content-length: ");
-    strcat(header, get_file_length(filename));
+    strcat(header, "Content-length: 5");
+    // strcat(header, get_file_length(filename));
     strcat(header,"\r\n");
-    fprintf(stderr, "handle line 176 %s \n", header); 
     // Content-Type
     char file_type[FILE_TYPE_LENGTH];
     get_file_type(filename, file_type);
     strcat(header, "Content-Type: ");
-    strcpy(header, file_type);
+    strcat(header, file_type);
     strcat(header,"\r\n");
-    fprintf(stderr, "handle line 183 %s \n", header); 
     // Connection 
-    // TODO
-    // Add "Close"
-    strcat(header, "Connection: keep-alive\r\n");
+    strcat(header, "Connection: keep-alive\r\n\r\n");
+    fprintf(stderr, "handle line 302  %s 302\n",header); 
+    strcat(response, header);
+    fprintf(stderr, "handle line 305  %s 305\n",response); 
   }
-  strcat(response, header);
+  
 }
 
 void handle_post(Request *request, char *response,char *ROOT){
@@ -229,8 +319,8 @@ void handle_post(Request *request, char *response,char *ROOT){
     strcat(response, "Date: ");
     strcat(response, date_time);
     strcat(response, "\r\n");
-    strcat(response, "Content-Type: text/html\r\n");
-    strcat(response, "Connection: close\r\n\r\n");  
+    strcat(response, "Connection: close\r\n");  
+    strcat(response, "Content-Type: text/html\r\n\r\n");
   }
   else {
     strcat(response, STATUS_401);
@@ -240,26 +330,31 @@ void handle_post(Request *request, char *response,char *ROOT){
     strcat(response, "Date: ");
     strcat(response, date_time);
     strcat(response, "\r\n");
-    strcat(response, "Content-Type: text/html\r\n");
-    strcat(response, "Connection: close\r\n\r\n");  
+    strcat(response, "Connection: close\r\n");  
+    strcat(response, "Content-Type: text/html\r\n\r\n");
   }
 }
 
 //handle request and point to corresponding method
 void handle_request(char *buf,int nbytes,char *response,char *ROOT){
-
+  // printf("Buffer: %s\n", buf);
   Request *request = parse(buf, nbytes);
 
   if (!request) {
-    strcpy(response, request->http_version);
+    fprintf(stderr, "line 346: request handler.\n");
+    strcpy(response, "HTTP/1.1");
     strcat(response, " ");
     strcat(response, STATUS_500);
     strcat(response, "Server: liso/1.0\r\n");
+    char date_time[TIME_LENGTH];
+    get_current_time(date_time);
+    strcat(response, "Date: ");
+    strcat(response, date_time);
+    strcat(response, "\r\n");
     strcat(response, "Connection: close\r\n\r\n");  
+    return;
   }
 
-  fprintf(stderr, "206, http version %s\n", request->http_version);
-  fprintf(stderr, "206, http method %s \n", request->http_method);
   if (!strcmp(request->http_version , "HTTP/1.1")) {
     //set http version for all
     strcpy(response, request->http_version);
@@ -284,8 +379,18 @@ void handle_request(char *buf,int nbytes,char *response,char *ROOT){
       strcat(response, "Date: ");
       strcat(response, date_time);
       strcat(response, "\r\n");
-      strcat(response, "Content-Type: text/html\r\n");
-      strcat(response, "Connection: close\r\n");   
+      strcat(response, "Connection: close\r\n");  
+      strcat(response, "Content-Type: text/html\r\n\r\n");
+      
+      strcat(response, "<head>\r\n");
+      strcat(response, "<title>Error response</title>\r\n");
+      strcat(response, "</head>\r\n");
+      strcat(response, "<body>\r\n");
+      strcat(response, "<h1>Error response</h1>\r\n");
+      strcat(response, "<p>Error code 501.</p>\r\n");
+      strcat(response, "<p>Message: Unsupported method ('HET').</p>\r\n");
+      strcat(response, "<p>Error code explanation: 501 = Server does not support this operation.</p>\r\n");
+      strcat(response, "</body>");   
     }
   }
   else {//not supported HTTP VERSION
@@ -298,7 +403,17 @@ void handle_request(char *buf,int nbytes,char *response,char *ROOT){
     strcat(response, "Date: ");
     strcat(response, date_time);
     strcat(response, "\r\n");
-    strcat(response, "Content-Type: text/html\r\n");
-    strcat(response, "Connection: close\r\n\r\n"); 
+    strcat(response, "Connection: close\r\n"); 
+    strcat(response, "Content-Type: text/html\r\n\r\n");
+
+    strcat(response, "<head>\r\n");
+    strcat(response, "<title>Error response</title>\r\n");
+    strcat(response, "</head>\r\n");
+    strcat(response, "<body>\r\n");
+    strcat(response, "<h1>Error response</h1>\r\n");
+    strcat(response, "<p>Error code 505.</p>\r\n");
+    strcat(response, "<p>Message: HTTP Version not supported.</p>\r\n");
+    strcat(response, "<p>Error code explanation: 505 = Cannot fulfill request..</p>\r\n");
+    strcat(response, "</body>");    
   }
 }

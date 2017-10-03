@@ -78,8 +78,6 @@ int main(int argc, char* argv[])
   char remoteIP[INET6_ADDRSTRLEN];
   int i;
 
-
-  fprintf(stderr, "----- Liso Server -----\n");
   Log(fp, "----- Start Liso Server ----- \n");
   
   /* all networked programs must create a socket */
@@ -88,8 +86,7 @@ int main(int argc, char* argv[])
       fprintf(stderr, "Failed creating socket.\n");
       return EXIT_FAILURE;
   }
-  
-  fprintf(stderr, "Server socket successfully created.\n");
+
   Log(fp, "Server socket successfully created.\n");
 
   addr.sin_family = AF_INET;
@@ -110,7 +107,6 @@ int main(int argc, char* argv[])
       return EXIT_FAILURE;
   }
 
-
   if (listen(sock, 5))
   {
       close_socket(sock);
@@ -118,7 +114,6 @@ int main(int argc, char* argv[])
       Log(fp, "Error listening on socket.\n");
       return EXIT_FAILURE;
   }
-
   
   // add the listener to the master set
   FD_SET(sock, &master);
@@ -191,8 +186,8 @@ int main(int argc, char* argv[])
                 } else { //data ready to proceed
 
                     handle_request(buf,nbytes,response,ROOT);
-
-                    strcat(response, "\r\n\r\n");
+                    // fprintf(stderr, "buffer: %s \r\n", buf);
+                    memset(buf,0,nbytes);
 
                     fprintf(stderr, "response here : %s\n",response );
                     int status = send(i, response, strlen(response), 0);
@@ -206,15 +201,17 @@ int main(int argc, char* argv[])
                     }
 
                     free(response);
-                    close(i); // bye!
-                    FD_CLR(i, &master); // remove from master set
+
+
+                    // close(i); // bye!
+                    // FD_CLR(i, &master); // remove from master set
                 }
             } // END handle data from client
         } // END got new incoming connection
     } // END looping through file descriptors
 
   }
-
+  close_log(fp);
   close_socket(sock);
   // fclose(server_log);
   return EXIT_SUCCESS;

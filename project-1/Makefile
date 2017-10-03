@@ -21,5 +21,5 @@ lisod: $(OBJ)
 	$(CC) -o $@ $^ $(CFLAGS)
 
 clean:
-	rm -f *~ *.o lisod lex.yy.c y.tab.c y.tab.h
+	rm -f *~ *.o lisod lex.yy.c y.tab.c y.tab.h request_handler
 
