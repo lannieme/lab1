@@ -238,9 +238,9 @@ void handle_head(Request *request, char *response, char *ROOT){
   } 
     else{
     // 200 OK
-    fprintf(stderr, "handle line 274  %s ih \n", header);   
+    // fprintf(stderr, "handle line 274  %s ih \n", header);   
     strcpy(header, STATUS_200);
-    fprintf(stderr, "handle line 275  %s hi \n", header); 
+    // fprintf(stderr, "handle line 275  %s hi \n", header); 
     // Date & Time
     char date_time[TIME_LENGTH];
     get_current_time(date_time);
@@ -259,7 +259,7 @@ void handle_head(Request *request, char *response, char *ROOT){
     size_t file_size = get_file_length(filename);
     char str[256];
     sprintf(str, "%ld", file_size);
-    fprintf(stderr, "The length here is!!!%s\n", str);
+    // fprintf(stderr, "The length here is!!!%s\n", str);
     strcat(header, "Content-length: ");
     strcat(header, str);
     strcat(header,"\r\n");
@@ -271,9 +271,9 @@ void handle_head(Request *request, char *response, char *ROOT){
     strcat(header,"\r\n");
     // Connection 
     strcat(header, "Connection: keep-alive\r\n\r\n");
-    fprintf(stderr, "handle line 302  %s 302\n",header); 
+    // fprintf(stderr, "handle line 302  %s 302\n",header); 
     strcat(response, header);
-    fprintf(stderr, "handle line 305  %s 305\n",response); 
+    // fprintf(stderr, "handle line 305  %s 305\n",response); 
   }
   
 }

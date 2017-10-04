@@ -1486,7 +1486,7 @@ yyreduce:
     {
   	strcpy(parsing_request->headers[parsing_request->header_count].header_name, (yyvsp[(1) - (7)].str));
 	strcpy(parsing_request->headers[parsing_request->header_count].header_value, (yyvsp[(5) - (7)].str));
-	parsing_request->headers = realloc(parsing_request->headers, sizeof(Request_header)*(parsing_request->header_count + 1));
+	parsing_request->headers = (Request_header *)realloc(parsing_request->headers, sizeof(Request_header)*(parsing_request->header_count + 2));
 	parsing_request->header_count++;
 }
     break;
