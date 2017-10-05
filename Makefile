@@ -1,26 +1,25 @@
-################################################################################
-# Makefile                                                                     #
-#                                                                              #
-# Description: This file contains the make rules for Project 1, for CS 5450    #
-#                                                                              #
-# Authors: Yuchen Wu <yuchenw@cs.cmu.edu>                                      #
-# Authors: Eugene Bagdasaryan <ebagdasa@cs.cornell.edu>                        #
-#                                                                              #
-################################################################################
+CC=gcc
+CFLAGS=-I.
+DEPS = parse.h y.tab.h log.h 
+OBJ = y.tab.o lex.yy.o parse.o request_handler.o lisod.o log.o
+FLAGS = -g -Wall
 
-all:
-	@rm -rf project-1
-	@tar -mxf autograde.tar
-	@tar -mxf handin.tar
-	@mkdir -p apachebench
-	@cp ./ab ./apachebench
-	@perl -pi -e 's/HTTP\/1.0/HTTP\/1.1/g' ./apachebench/ab
-	mkdir -p tmp
-	cp -r www tmp
-	@cp *.py project-1
-	@cp -r unittest2 project-1
-	@cp -r http_parser project-1
-	@cp -r requests project-1
-	@cp ./yacc project-1
-	sed -i 's/yacc/.\/yacc/g' project-1/*akefile	
-	cd project-1; python ./grader1cp2.py
+default: all
+
+all: lisod
+
+lex.yy.c: lexer.l
+	flex $^
+
+y.tab.c: parser.y
+	yacc -d $^
+
+%.o: %.c $(DEPS)
+	$(CC) $(FLAGS) -c -g -o $@ $< $(CFLAGS)
+
+lisod: $(OBJ)
+	$(CC) -o $@ $^ $(CFLAGS)
+
+clean:
+	rm -f *~ *.o lisod lex.yy.c y.tab.c y.tab.h request_handler
+

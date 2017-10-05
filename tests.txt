@@ -1,0 +1,40 @@
+# TESTS                                                                        #
+#                                                                              #
+# Description: This file is the summary of test scenarios and  Vulnerabilities #
+#                                                                              #
+# Authors: Lannie Yulan Miao <ym232@cornell.edu>                               #
+#          Shanshan Zhang<sz438@cornell.edu>                        	           #
+#                                                                              #
+################################################################################
+
+Test Method
+--------------------------------------------------------------------------------
+All the test cases are running on AWS Ubuntu server
+
+Test Scenarios
+--------------------------------------------------------------------------------
+Request `Method` | Request `Path` | Response `Status-Code` | Response `Content-Type`
+---|---|---|---
+GET, HEAD | \non-existing file | 404 NOT FOUND 
+GET, HEAD | \unauthorized file | 403 FORBIDDEN 
+GET, HEAD | \index.html | 200 OK | text/html
+GET, HEAD | \style.css | 200 OK | text/css
+POST      | \non-existing file | 204 NO CONTENT 
+POST      | \index.html | 200 OK  | text/html
+NOT IMPLEMENTED METHOD(e.g. PUSH)| \ | 501 NOT IMPLEMENTED  
+GET, HEAD, POST (HTTP/1.0 OR HTTP/2.0) | \ |505 HTTP VERSION NOT SUPPORTED
+
+Test Concurrent Multi-clients Handling
+--------------------------------------------------------------------------------
+Opened multiple clients sending requests to server at the same time. The server was able to handle it correctly.
+
+
+Vulnerabilities
+--------------------------------------------------------------------------------
+###Binary file handling 
+All the plain text file can be handled(including html&css file). However, it cannot handle the binary file such as the given png file. The header part works fine, but there is no returned data for the body part for GET method. 
+We initially used plain-text method to read file content, but finally switch yo fread() function for binary function. It does not work though. 
+
+
+### Big file handling 
+Now we just return all the file contents for big files though reallocate the file buffer, which break down the server with error message “incorrect checksum for freed object - object was probably modified after being freed”. But we could implement a method to truncate the response body. 
