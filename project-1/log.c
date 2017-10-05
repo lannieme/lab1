@@ -1,15 +1,18 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
 #include "log.h"
 
 FILE *open_log(const char *path){
     FILE *server_log; //https://stackoverflow.com/questions/23856306/how-to-create-log-file-in-c
 
-    server_log = fopen(path, "w");
+    server_log = fopen(path, "a");
     if ( server_log == NULL )
     {
         printf("Error while opening logfile. \n");
         exit(EXIT_FAILURE);
     }
-
     return server_log;
 }
 
@@ -38,4 +41,7 @@ void Log(FILE *server_log, char *msg){
 
 void close_log(FILE *fp){
     fclose(fp);
+    if (fclose(fp) != 0) {
+        perror("ERROR: Not able to close server log.");
+    } 
 }

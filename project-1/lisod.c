@@ -25,7 +25,7 @@
 #define BUF_SIZE 8192
 #define MAX_NO_CLIENT 1024
 
-FILE *fp;
+
 
 // get sockaddr, IPv4 or IPv6:
 void *get_in_addr(struct sockaddr *sa)
@@ -62,7 +62,8 @@ int main(int argc, char* argv[])
   char *server_log = argv[3];
   char *ROOT = argv[5];
 
-  fp = open_log(server_log);
+  FILE *fptr;
+  fptr = open_log(server_log);
 
   fd_set master;    // master file descriptor list
   fd_set read_fds;  // temp file descriptor list for select()
@@ -71,16 +72,16 @@ int main(int argc, char* argv[])
   char remoteIP[INET6_ADDRSTRLEN];
   int i;
 
-  Log(fp, "----- Start Liso Server ----- \n");
+  Log(fptr, "----- Start Liso Server ----- \n");
   
   /* all networked programs must create a socket */
   if ((sock = socket(PF_INET, SOCK_STREAM, 0)) == -1)
   {
-      Log(fp, "Failed creating socket.\n");
+      Log(fptr, "Failed creating socket.\n");
       return EXIT_FAILURE;
   }
 
-  Log(fp, "Server socket successfully created.\n");
+  Log(fptr, "Server socket successfully created.\n");
 
   addr.sin_family = AF_INET;
   
@@ -95,14 +96,14 @@ int main(int argc, char* argv[])
   if (bind(sock, (struct sockaddr *) &addr, sizeof(addr)))
   {
       close_socket(sock);
-      Log(fp, "Failed binding socket.\n");
+      Log(fptr, "Failed binding socket.\n");
       return EXIT_FAILURE;
   }
 
   if (listen(sock, 5))
   {
       close_socket(sock);
-      Log(fp, "Error listening on socket.\n");
+      Log(fptr, "Error listening on socket.\n");
       return EXIT_FAILURE;
   }
   
@@ -117,7 +118,7 @@ int main(int argc, char* argv[])
     read_fds = master; // copy it
     if (select(fdmax+1, &read_fds, NULL, NULL, NULL) == -1) {
         perror("select");
-        Log(fp, "ERROR: not able to select\n");
+        Log(fptr, "ERROR: not able to select\n");
         exit(4);
     }
 
@@ -133,19 +134,13 @@ int main(int argc, char* argv[])
 
                 if (client_sock == -1) {
                     perror("accept");
-                    Log(fp, "ERROR: not able to accept connection\n");
+                    Log(fptr, "ERROR: not able to accept connection\n");
                 } else {
                     FD_SET(client_sock, &master); // add to master set
                     if (client_sock > fdmax) {    // keep track of the max
                         fdmax = client_sock;
 
                     }
-                    printf("selectserver: new connection from %s on "
-                        "socket %d\n",
-                        inet_ntop(cli_addr.sin_family,
-                            get_in_addr((struct sockaddr*)&cli_addr),
-                            remoteIP, INET6_ADDRSTRLEN),
-                        client_sock);
                     fprintf(stderr, "selectserver: new connection from %s on "
                         "socket %d\n",
                         inet_ntop(cli_addr.sin_family,
@@ -155,7 +150,6 @@ int main(int argc, char* argv[])
                 }
             } else {
                 // handle data from a client
-                fprintf(stderr, "line 162");
                 char* response = malloc(sizeof(char)*10000);
                 
 
@@ -163,12 +157,10 @@ int main(int argc, char* argv[])
                     // got error or connection closed by client
                     if (nbytes == 0) {
                         // connection closed
-                        fprintf(stderr, "selectserver: socket %d hung up\n", i);
-                        Log(fp, "selectserver: socket %d hung up\n");
+                        Log(fptr, "selectserver: socket hung up\n");
                     } else {
                         perror("recv");
-                        fprintf(stderr, "ERROR: not able to receive data from socket %d\n",i );
-                        Log(fp, "ERROR: not able to receive data from socket %d\n");
+                        Log(fptr, "ERROR: not able to receive data from socket \n");
                     }
                     close(i); // bye!
                     FD_CLR(i, &master); // remove from master set
@@ -177,15 +169,12 @@ int main(int argc, char* argv[])
                     handle_request(buf,nbytes,response,ROOT);
                     memset(buf,0,nbytes);
 
-                    fprintf(stderr, "response here : %s\n",response );
                     int status = send(i, response, strlen(response), 0);
                     if (status  == -1) {
                       perror("send");
-                      fprintf(stderr, "ERROR：not able to sent data to client");
-                      Log(fp, "ERROR：not able to sent data to client\n");
+                      Log(fptr, "ERROR：not able to sent data to client\n");
                     }else{
-                      fprintf(stderr, "Sent response!");
-                      Log(fp, "Sent response!\n");
+                      Log(fptr, "Sent response!\n");
                     }
 
                     free(response);
@@ -199,7 +188,7 @@ int main(int argc, char* argv[])
     } // END looping through file descriptors
 
   }
-  close_log(fp);
+  close_log(fptr);
   close_socket(sock);
   return EXIT_SUCCESS;
 }

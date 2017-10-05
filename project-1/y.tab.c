@@ -465,8 +465,8 @@ static const yytype_int8 yyrhs[] =
 static const yytype_uint8 yyrline[] =
 {
        0,   110,   110,   111,   114,   120,   124,   150,   151,   154,
-     157,   165,   169,   177,   181,   185,   190,   197,   214,   214,
-     216
+     157,   165,   169,   177,   181,   185,   190,   203,   219,   219,
+     221
 };
 #endif
 
@@ -1482,17 +1482,17 @@ yyreduce:
     break;
 
   case 17:
-#line 197 "parser.y"
+#line 203 "parser.y"
     {
-  	strcpy(parsing_request->headers[parsing_request->header_count].header_name, (yyvsp[(1) - (7)].str));
+	YPRINTF("request_Header:\n%s\n%s\n",(yyvsp[(1) - (7)].str),(yyvsp[(5) - (7)].str));
+  strcpy(parsing_request->headers[parsing_request->header_count].header_name, (yyvsp[(1) - (7)].str));
 	strcpy(parsing_request->headers[parsing_request->header_count].header_value, (yyvsp[(5) - (7)].str));
-	parsing_request->headers = (Request_header *)realloc(parsing_request->headers, sizeof(Request_header)*(parsing_request->header_count + 2));
-	parsing_request->header_count++;
+	parsing_request->header_count *= 2;
 }
     break;
 
   case 20:
-#line 216 "parser.y"
+#line 221 "parser.y"
     {
 	YPRINTF("parsing_request: Matched Success.\n");
 	return SUCCESS;
@@ -1715,7 +1715,7 @@ yyreturn:
 }
 
 
-#line 221 "parser.y"
+#line 226 "parser.y"
 
 
 /* C code */

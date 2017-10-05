@@ -60,13 +60,11 @@ Request * parse(char *buffer, int size) {
      
         request->headers = (Request_header *) malloc(sizeof(Request_header) * 1);
   		set_parsing_options(buf, i, request);
-		
-		// fprintf(stderr, "buffer: %s \r\n", buf);
-		printf("before parser \n");
+
 		if (yyparse() == SUCCESS) {
       		return request;
 		}
-		printf("after parser \n");
+
 	}else {
 		free(request);
 	}
